@@ -1,17 +1,5 @@
 from typing import List
 
-class InvalidInputFileError(Exception):
-    """Raised when an invalid input file is provided."""
-    pass
-
-class InvalidOutputFileError(Exception):
-    """Raised when an invalid output file is provided."""
-    pass
-
-class InvalidModelError(Exception):
-    """Raised when an invalid model is provided."""
-    pass
-
 class TranscriberInt:
     """
     The Transcriber class handles the transcription of audio files using
