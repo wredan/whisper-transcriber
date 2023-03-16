@@ -8,7 +8,8 @@ import whisper
 import time
 from halo import Halo
 import coloredlogs
-from transcriber.transcriber_interface import TranscriberInt, InvalidInputFileError, InvalidOutputFileError, InvalidModelError
+from transcriber.transcriber_interface import TranscriberInt
+from transcriber.validators import Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidOutputFileError, InvalidModelError
 from transcriber.output_print_format import OutputPrintFormat
 
 warnings.filterwarnings("ignore")
@@ -19,33 +20,17 @@ logger = logging.getLogger(__name__)
 
 class Transcriber(TranscriberInt):
         
-    def __init__(self, model_name: str, output_file: str, output_format: str):
+    def __init__(self, model_name: str, output_file: str, output_format: str, timetitle_list_file: str = None):
         self.model_name = model_name
         self.output_file = output_file
         self.output_format = output_format
-        self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2']
         self.model = None
-        self.output_formatter = OutputPrintFormat()
+        self.timetitle_list_file = timetitle_list_file
+        self.output_formatter = OutputPrintFormat(timetitle_list_file)
 
     def _load_model(self):
         logger.info(f"🔄 Loading model: {self.model_name}")
         self.model = whisper.load_model(self.model_name)
-
-    def _validate_input_files(self, input_files: List[str]) -> bool:
-        for file in input_files:
-            if not os.path.exists(file) or not file.lower().endswith(('.mp3', '.wav', '.m4a')):
-                raise InvalidInputFileError(f"Invalid input file: {file}. Please provide a valid audio file.")
-        return True
-
-    def _validate_output_file(self) -> bool:
-        if not self.output_file.lower().endswith('.txt'):
-            raise InvalidOutputFileError("Invalid output file extension. Please provide a .txt file.")
-        return True
-
-    def _validate_model(self) -> bool:
-        if self.model_name not in self.available_models:
-            raise InvalidModelError(f"Invalid model: {self.model_name}. Available models: {', '.join(self.available_models)}.")
-        return True
 
     def _save_transcription_to_txt(self, result, input_file):
         try:
@@ -74,11 +59,14 @@ class Transcriber(TranscriberInt):
 
     def transcribe_files(self, input_files):
         try:
-            self._validate_input_files(input_files)
-            self._validate_output_file()
-            self._validate_model()
-            self.output_formatter.validate_format(self.output_format)
-        except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, ValueError) as e:
+            Validator().validate(
+                input_files, 
+                self.output_file, 
+                self.model_name, 
+                self.timetitle_list_file, 
+                self.output_format, 
+                self.output_formatter)
+        except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, InvalidTimeTitleFileError, ValueError) as e:
             logger.error(f"\n❌ {e}\n")
             sys.exit(1)
 
@@ -96,11 +84,13 @@ def main():
     parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper models.")
     parser.add_argument("model", help="Choose the model to use for transcription. Available models: ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2'].")
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
-    parser.add_argument('-o', '--output_filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
-    parser.add_argument('-f', '--output_format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both", default=None)
+    parser.add_argument('-o', '--output-filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
+    parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
+    parser.add_argument('-t', '--timelist-filename', metavar='timelist_filename', help="Time list file name. Used for break transcription into timeblocks.", default=None)
+    
     args = parser.parse_args()
     output_filename = args.output_filename or os.path.splitext(args.input_file[0])[0] + "_transcription.txt"
-    transcriber = Transcriber(args.model, output_filename, args.output_format)
+    transcriber = Transcriber(args.model, output_filename, args.output_format, args.timelist_filename)
     transcriber.transcribe_files(args.input_file)
 
 if __name__ == "__main__":
