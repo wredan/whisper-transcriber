@@ -86,7 +86,7 @@ def main():
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
     parser.add_argument('-o', '--output-filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
-    parser.add_argument('-t', '--timelist-filename', metavar='timelist_filename', help="Time list file name. Used for break transcription into timeblocks.", default=None)
+    parser.add_argument('-t', '--timelist-filename', metavar='timelist_filename', help="Time list file name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
     
     args = parser.parse_args()
     output_filename = args.output_filename or os.path.splitext(args.input_file[0])[0] + "_transcription.txt"
