@@ -11,6 +11,12 @@ Install the cli tool by running:
 ```
 in the root project folder.
 
+Other requirements are:
+- ffmpeg executable on cli
+
+Tips:
+- use a conda environment, be sure to support cuda, using `torch.cuda.is_available()` in your conda env, to speed up the process.
+
 ---------------
 ## CLI Usage
 
