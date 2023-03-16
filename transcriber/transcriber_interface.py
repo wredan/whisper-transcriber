@@ -19,7 +19,7 @@ class TranscriberInt:
     the chosen model, and then processes the transcription.
     """
 
-    def __init__(self, model_name: str, output_file: str = "whisper_transcription.txt"):
+    def __init__(self, model_name: str, output_file: str):
         ...
 
     def _load_model(self) -> None:
