@@ -17,14 +17,20 @@ class InvalidModelError(Exception):
     """Raised when an invalid model is provided."""
     pass
 
+class InvalidDeviceError(Exception):
+    """Raised when an invalid device is provided."""
+    pass
+
 class Validator:
     def __init__(self) -> None:
         self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2']
+        self.available_device = ['cuda', 'mps', 'cpu']
 
-    def validate(self, input_files, output_file, model_name, timetitle_files, output_format, output_formatter):
+    def validate(self, input_files, output_file, model_name, timetitle_files, output_format, device, output_formatter):
         self._validate_input_files(input_files)
         self._validate_output_file(output_file)
         self._validate_model(model_name)
+        self._validate_device(device)
         if timetitle_files:
             self._validate_timetitle_file(timetitle_files)
         output_formatter.validate_format(output_format)
@@ -49,4 +55,9 @@ class Validator:
     def _validate_model(self, model_name) -> bool:
         if model_name not in self.available_models:
             raise InvalidModelError(f"Invalid model: {model_name}. Available models: {', '.join(self.available_models)}.")
+        return True
+    
+    def _validate_device(self, device) -> bool:
+        if device not in self.available_device:
+            raise InvalidDeviceError(f"Invalid device: {device}. Available device: {', '.join(self.available_device)}.")
         return True

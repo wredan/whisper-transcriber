@@ -8,8 +8,9 @@ import whisper
 import time
 from halo import Halo
 import coloredlogs
+import torch
 from transcriber.transcriber_interface import TranscriberInt
-from transcriber.validators import Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidOutputFileError, InvalidModelError
+from transcriber.validators import InvalidDeviceError, Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidOutputFileError, InvalidModelError
 from transcriber.output_print_format import OutputPrintFormat
 
 warnings.filterwarnings("ignore")
@@ -27,9 +28,9 @@ class Transcriber(TranscriberInt):
         self.model = None
         self.output_formatter = OutputPrintFormat()
 
-    def _load_model(self):
+    def _load_model(self, device):
         logger.info(f"🔄 Loading model: {self.model_name}")
-        self.model = whisper.load_model(self.model_name)
+        self.model = whisper.load_model(self.model_name, device=device)
 
     def _save_transcription_to_txt(self, result, input_file, timetitle_file):
         try:
@@ -56,23 +57,28 @@ class Transcriber(TranscriberInt):
         logger.info(f"✅ Transcription completed for {input_file} with {self.model_name} model")
         logger.info(f"⏱️ Time elapsed: {time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}\n")
 
-    def transcribe_files(self, input_files, timelist_files):
+    def transcribe_files(self, input_files, timelist_files, device):
         try:
             Validator().validate(
                 input_files, 
                 self.output_file, 
                 self.model_name, 
                 timelist_files, 
-                self.output_format, 
+                self.output_format,
+                device,
                 self.output_formatter)
-        except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, InvalidTimeTitleFileError, ValueError) as e:
+        except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, InvalidTimeTitleFileError, InvalidDeviceError, ValueError) as e:
             logger.error(f"\n❌ {e}\n")
             sys.exit(1)
 
         with open(self.output_file, "w") as outfile:
             outfile.write("")
-
-        self._load_model()
+        
+        try:
+            self._load_model(device)
+        except (Exception) as e:
+            logger.error(f"\n❌ {e}\n")
+            sys.exit(1)
 
         for index, input_file in enumerate(input_files):
             timetitle_file = timelist_files[index] if timelist_files and index < len(timelist_files) else None
@@ -87,11 +93,11 @@ def main():
     parser.add_argument('-o', '--output-filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
     parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
-    
+    parser.add_argument('-d', "--device", metavar='device', default="cuda" if torch.cuda.is_available() else "cpu", help="Device to use for PyTorch inference: cuda, mps, cpu")
     args = parser.parse_args()
     output_filename = args.output_filename or os.path.splitext(args.input_file[0])[0] + "_transcription.txt"
     transcriber = Transcriber(args.model, output_filename, args.output_format)
-    transcriber.transcribe_files(args.input_file, args.timelist_files)
+    transcriber.transcribe_files(args.input_file, args.timelist_files, args.device)
 
 if __name__ == "__main__":
     main()
