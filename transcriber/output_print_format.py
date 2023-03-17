@@ -1,12 +1,11 @@
 import time
 from transcriber.title_split_manager import TitleSplitManager
 class OutputPrintFormat:
-    def __init__(self, timelist_file: str = None) -> None:
-        self.timelist_file = timelist_file
+    def __init__(self) -> None:
         pass
 
-    def print_output(self, result, output_file, input_file, model_name, format=None):
-        timetitle_list = TitleSplitManager().get_title_time_list_from_file(self.timelist_file) if self.timelist_file else None
+    def print_output(self, result, output_file, input_file, model_name, timelist_file = None, format=None):
+        timetitle_list = TitleSplitManager().get_title_time_list_from_file(timelist_file) if timelist_file else None
         if format is None or format == "timestamp":
             self._print_timestamp_format(result, output_file, input_file, model_name, timetitle_list)
         if format is None or format == "plain":

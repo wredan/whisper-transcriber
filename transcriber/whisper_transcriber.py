@@ -20,26 +20,25 @@ logger = logging.getLogger(__name__)
 
 class Transcriber(TranscriberInt):
         
-    def __init__(self, model_name: str, output_file: str, output_format: str, timetitle_list_file: str = None):
+    def __init__(self, model_name: str, output_file: str, output_format: str):
         self.model_name = model_name
         self.output_file = output_file
         self.output_format = output_format
         self.model = None
-        self.timetitle_list_file = timetitle_list_file
-        self.output_formatter = OutputPrintFormat(timetitle_list_file)
+        self.output_formatter = OutputPrintFormat()
 
     def _load_model(self):
         logger.info(f"🔄 Loading model: {self.model_name}")
         self.model = whisper.load_model(self.model_name)
 
-    def _save_transcription_to_txt(self, result, input_file):
+    def _save_transcription_to_txt(self, result, input_file, timetitle_file):
         try:
-            self.output_formatter.print_output(result, self.output_file, input_file, self.model_name, format=self.output_format)
+            self.output_formatter.print_output(result, self.output_file, input_file, self.model_name, timetitle_file, format=self.output_format)
         except (ValueError) as e:
             logger.error(f"\n❌ {e}\n")
             sys.exit(1)
 
-    def _transcribe(self, input_file):
+    def _transcribe(self, input_file, timetitle_file):
         start_time = time.time()
         spinner = Halo(text=f"Transcribing {input_file} with {self.model_name} model 🗣️ -> 📝", spinner="dots")
         spinner.start()
@@ -53,17 +52,17 @@ class Transcriber(TranscriberInt):
 
         elapsed_time = time.time() - start_time
         spinner.stop()
-        self._save_transcription_to_txt(result, input_file)
+        self._save_transcription_to_txt(result, input_file, timetitle_file)
         logger.info(f"✅ Transcription completed for {input_file} with {self.model_name} model")
         logger.info(f"⏱️ Time elapsed: {time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}\n")
 
-    def transcribe_files(self, input_files):
+    def transcribe_files(self, input_files, timelist_files):
         try:
             Validator().validate(
                 input_files, 
                 self.output_file, 
                 self.model_name, 
-                self.timetitle_list_file, 
+                timelist_files, 
                 self.output_format, 
                 self.output_formatter)
         except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, InvalidTimeTitleFileError, ValueError) as e:
@@ -75,8 +74,9 @@ class Transcriber(TranscriberInt):
 
         self._load_model()
 
-        for input_file in input_files:
-            self._transcribe(input_file)
+        for index, input_file in enumerate(input_files):
+            timetitle_file = timelist_files[index] if timelist_files and index < len(timelist_files) else None
+            self._transcribe(input_file, timetitle_file)
 
         logger.info("🎉 Transcription completed for all files")
 
@@ -86,12 +86,12 @@ def main():
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
     parser.add_argument('-o', '--output-filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
-    parser.add_argument('-t', '--timelist-filename', metavar='timelist_filename', help="Time list file name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
+    parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
     
     args = parser.parse_args()
     output_filename = args.output_filename or os.path.splitext(args.input_file[0])[0] + "_transcription.txt"
-    transcriber = Transcriber(args.model, output_filename, args.output_format, args.timelist_filename)
-    transcriber.transcribe_files(args.input_file)
+    transcriber = Transcriber(args.model, output_filename, args.output_format)
+    transcriber.transcribe_files(args.input_file, args.timelist_files)
 
 if __name__ == "__main__":
     main()

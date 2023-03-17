@@ -21,11 +21,11 @@ class Validator:
     def __init__(self) -> None:
         self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2']
 
-    def validate(self, input_files, output_file, model_name, timetitle_file, output_format, output_formatter):
+    def validate(self, input_files, output_file, model_name, timetitle_files, output_format, output_formatter):
         self._validate_input_files(input_files)
         self._validate_output_file(output_file)
         self._validate_model(model_name)
-        self._validate_timetitle_file(timetitle_file)
+        self._validate_timetitle_file(timetitle_files)
         output_formatter.validate_format(output_format)
 
     def _validate_input_files(self, input_files: List[str]) -> bool:
@@ -39,9 +39,10 @@ class Validator:
             raise InvalidOutputFileError("Invalid output file extension. Please provide a .txt file.")
         return True
 
-    def _validate_timetitle_file(self, timetitle_file) -> bool:
-        if timetitle_file and not timetitle_file.lower().endswith('.txt'):
-            raise InvalidTimeTitleFileError("Invalid input time-title file extension. Please provide a .txt file.")
+    def _validate_timetitle_file(self, timetitle_files: List[str]) -> bool:
+        for file in timetitle_files:
+            if not os.path.exists(file) or not file.lower().endswith('.txt'):
+                raise InvalidTimeTitleFileError(f"Invalid input file: {file}. Please provide a .txt file.")
         return True
     
     def _validate_model(self, model_name) -> bool:
