@@ -25,7 +25,8 @@ class Validator:
         self._validate_input_files(input_files)
         self._validate_output_file(output_file)
         self._validate_model(model_name)
-        self._validate_timetitle_file(timetitle_files)
+        if timetitle_files:
+            self._validate_timetitle_file(timetitle_files)
         output_formatter.validate_format(output_format)
 
     def _validate_input_files(self, input_files: List[str]) -> bool:
