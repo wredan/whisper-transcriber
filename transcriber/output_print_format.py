@@ -36,7 +36,7 @@ class OutputPrintFormat:
         )
 
     def _write_output(self, result, output_file, input_file, model_name, timetitle_list, format_label, format_function):
-        with open(output_file, "a") as outfile:
+        with open(output_file, "a", encoding="utf-8") as outfile:
             self._write_header(outfile, input_file, model_name, format_label)
 
             if timetitle_list:

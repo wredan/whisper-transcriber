@@ -10,7 +10,7 @@ class TitleSplitManager:
         pass
 
     def get_title_time_list_from_file(self, filename: str):
-        with open(filename, 'r') as file:
+        with open(filename, 'r', encoding="utf-8") as file:
             title_time_list = [self._parse_line(line.strip()) for line in file]
         return title_time_list
 
