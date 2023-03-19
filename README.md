@@ -23,11 +23,10 @@ Tips:
 To transcript: 
 
 ```bash
-  $ whisper-transcriber model <audio-file-1> <audio-file-1> ... -o <file-name>.txt -f <output-format>
+  $ whisper-transcriber model <audio-file-1> <audio-file-2> ...
 ```
 
-It runs using PyTorch inference, so it will select 'cuda' by default if available. It will run on the CPU otherwise. Keep in mind that the larger the model you select, the more time it will take to transcribe (same for audio length), but the quality of transcription will increase.
-
+Whisper runs with PyTorch inference, so it will automatically choose 'cuda' if available. If not, it will run on the CPU. It's important to note that the larger the model you select, the more time it will take to transcribe (this is also true for the length of the audio), but the quality of the transcription will improve. To use larger models, a GPU with at least 10GB VRAM is needed.
 
 Run:
 ```bash
