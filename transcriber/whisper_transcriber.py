@@ -11,7 +11,6 @@ import time
 from halo import Halo
 import coloredlogs
 import torch
-from transcriber.transcriber_interface import TranscriberInt
 from transcriber.validators import InvalidDeviceError, Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidOutputFileError, InvalidModelError
 from transcriber.output_print_format import OutputPrintFormat
 
@@ -21,7 +20,7 @@ coloredlogs.install(level='INFO', fmt='%(message)s', level_styles={'info': {'col
 
 logger = logging.getLogger(__name__)
 
-class Transcriber(TranscriberInt):
+class Transcriber():
         
     def __init__(self, model_name: str, output_format: str):
         self.model_name = model_name
