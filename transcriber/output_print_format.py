@@ -5,6 +5,7 @@ class OutputPrintFormat:
         pass
 
     def print_output(self, result, output_file, input_file, model_name, timelist_file = None, format=None):
+        self.create_file(output_file)
         timetitle_list = TitleSplitManager().get_title_time_list_from_file(timelist_file) if timelist_file else None
         if format is None or format == "timestamp":
             self._print_timestamp_format(result, output_file, input_file, model_name, timetitle_list)
@@ -12,6 +13,10 @@ class OutputPrintFormat:
             self._print_plain_format(result, output_file, input_file, model_name, timetitle_list)
         elif format not in ["timestamp", "plain"]:
             raise ValueError(f"Invalid format: {format}. Supported formats: 'timestamp', 'plain'.")
+        
+    def create_file(self, output_file):
+        with open(output_file, "w", encoding="utf-8") as outfile:
+            outfile.write("")
 
     def _print_timestamp_format(self, result, output_file, input_file, model_name, timetitle_list):
         self._write_output(
