@@ -37,7 +37,6 @@ class Transcriber():
             sys.exit(1)
 
     def _transcribe(self, input_file, timetitle_file):
-        start_time = time.time()
         logger.info(f"🗣️  -> 📝 - Transcribing {input_file} with {self.model_name} model...")
 
         try:
@@ -50,9 +49,7 @@ class Transcriber():
             sys.exit(0)
 
         self._save_transcription_to_txt(result, input_file, timetitle_file)
-        logger.info(f"✅ - Transcription completed for {input_file} with {self.model_name} model")
-        elapsed_time = time.time() - start_time
-        logger.info(f"⏱️ - Time elapsed: {time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}\n")
+        logger.info(f"✅ - Transcription completed for {input_file} with {self.model_name} model\n")
 
     def transcribe_files(self, input_files, timelist_files, device):
         try:
