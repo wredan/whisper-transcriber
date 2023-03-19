@@ -6,7 +6,6 @@ setup(
     packages=find_packages(),
     install_requires=[
         'openai-whisper>=20230314', 
-        'halo>=0.0.31   ', 
         'coloredlogs>=15.0.1',
     ],
     entry_points={
