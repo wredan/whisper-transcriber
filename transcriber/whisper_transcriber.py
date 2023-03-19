@@ -29,7 +29,7 @@ class Transcriber():
         self.output_formatter = OutputPrintFormat()
 
     def _load_model(self, device):
-        logger.info(f"🔄 Loading model: {self.model_name}")
+        logger.info(f"🔄 Loading model: {self.model_name}\n")
         self.model = whisper.load_model(self.model_name, device=device)
 
     def _save_transcription_to_txt(self, result, input_file, timetitle_file):        
