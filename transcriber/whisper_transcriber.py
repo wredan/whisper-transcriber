@@ -1,7 +1,9 @@
 import argparse
+import datetime
 import logging
 import os
 import sys
+import threading
 import warnings
 from typing import List
 import whisper
@@ -38,23 +40,46 @@ class Transcriber(TranscriberInt):
         except (ValueError) as e:
             logger.error(f"\n❌ {e}\n")
             sys.exit(1)
+    
+    def _update_spinner_text(self, spinner, input_file, start_time):
+        while not self.spinner_stop:
+            elapsed_time = datetime.timedelta(seconds=int(time.time() - start_time))
+            spinner.text = f"({elapsed_time}) - Transcribing {input_file} with {self.model_name} model 🗣️ -> 📝"
+            time.sleep(1)
+    
+    def _start_spinner_thread(self, spinner, input_file, start_time):
+        self.spinner_stop = False
+        spinner_thread = threading.Thread(target=self._update_spinner_text, args=(spinner, input_file, start_time))
+        spinner_thread.start()
+        return spinner_thread
+
+    def _stop_spinner_thread(self, spinner, spinner_thread):
+        self.spinner_stop = True
+        spinner_thread.join()
+        spinner.stop()
 
     def _transcribe(self, input_file, timetitle_file):
         start_time = time.time()
-        spinner = Halo(text=f"Transcribing {input_file} with {self.model_name} model 🗣️ -> 📝", spinner="dots")
+        spinner = Halo(text='', spinner="dots", interval=80)
         spinner.start()
+
+        spinner_thread = self._start_spinner_thread(spinner, input_file, start_time)
 
         try:
             result = self.model.transcribe(input_file)
         except Exception as e:
-            spinner.stop()
+            self._stop_spinner_thread(spinner, spinner_thread)
             logger.error(f"Error during transcription: {e}")
-            return
+            sys.exit(0)
+        except KeyboardInterrupt:
+            logger.info(f"\n\nInterrupted by user. Stopping...")
+            self._stop_spinner_thread(spinner, spinner_thread)
+            sys.exit(0)
 
-        elapsed_time = time.time() - start_time
-        spinner.stop()
+        self._stop_spinner_thread(spinner, spinner_thread)
         self._save_transcription_to_txt(result, input_file, timetitle_file)
         logger.info(f"✅ Transcription completed for {input_file} with {self.model_name} model")
+        elapsed_time = time.time() - start_time
         logger.info(f"⏱️ Time elapsed: {time.strftime('%H:%M:%S', time.gmtime(elapsed_time))}\n")
 
     def transcribe_files(self, input_files, timelist_files, device):
