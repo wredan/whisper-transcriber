@@ -68,8 +68,8 @@ class Transcriber():
             result = self.model.transcribe(input_file)
         except Exception as e:
             self._stop_spinner_thread(spinner, spinner_thread)
-            logger.error(f"Error during transcription: {e}")
-            sys.exit(0)
+            logger.error(f"\n❌ Error during transcription: {e}\n")
+            sys.exit(1)
         except KeyboardInterrupt:
             logger.info(f"\n\nInterrupted by user. Stopping...")
             self._stop_spinner_thread(spinner, spinner_thread)
