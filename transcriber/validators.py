@@ -26,9 +26,8 @@ class Validator:
         self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2']
         self.available_device = ['cuda', 'mps', 'cpu']
 
-    def validate(self, input_files, output_file, model_name, timetitle_files, output_format, device, output_formatter):
+    def validate(self, input_files, model_name, timetitle_files, output_format, device, output_formatter):
         self._validate_input_files(input_files)
-        self._validate_output_file(output_file)
         self._validate_model(model_name)
         self._validate_device(device)
         if timetitle_files:
@@ -39,11 +38,6 @@ class Validator:
         for file in input_files:
             if not os.path.exists(file) or not file.lower().endswith(('.mp3', '.wav', '.m4a')):
                 raise InvalidInputFileError(f"Invalid input file: {file}. Please provide a valid audio file.")
-        return True
-
-    def _validate_output_file(self, output_file) -> bool:
-        if not output_file.lower().endswith('.txt'):
-            raise InvalidOutputFileError("Invalid output file extension. Please provide a .txt file.")
         return True
 
     def _validate_timetitle_file(self, timetitle_files: List[str]) -> bool:

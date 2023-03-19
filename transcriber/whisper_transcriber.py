@@ -61,7 +61,6 @@ class Transcriber(TranscriberInt):
         try:
             Validator().validate(
                 input_files, 
-                self.output_file, 
                 self.model_name, 
                 timelist_files, 
                 self.output_format,
@@ -87,7 +86,6 @@ def main():
     parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper models.")
     parser.add_argument("model", help="Choose the model to use for transcription. Available models: ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2'].")
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
-    parser.add_argument('-o', '--output-filename', metavar='output_file', help="Output file name. Default is 'first_file_name_transcription.txt'")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
     parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
     parser.add_argument('-d', "--device", metavar='device', default="cuda" if torch.cuda.is_available() else "cpu", help="Device to use for PyTorch inference: cuda, mps, cpu")
