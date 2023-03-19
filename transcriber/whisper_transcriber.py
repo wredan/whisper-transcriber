@@ -11,7 +11,7 @@ import time
 from halo import Halo
 import coloredlogs
 import torch
-from transcriber.validators import InvalidDeviceError, Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidOutputFileError, InvalidModelError
+from transcriber.validators import InvalidDeviceError, Validator, InvalidTimeTitleFileError , InvalidInputFileError, InvalidModelError
 from transcriber.output_print_format import OutputPrintFormat
 
 warnings.filterwarnings("ignore")
@@ -90,7 +90,7 @@ class Transcriber():
                 self.output_format,
                 device,
                 self.output_formatter)
-        except (InvalidInputFileError, InvalidOutputFileError, InvalidModelError, InvalidTimeTitleFileError, InvalidDeviceError, ValueError) as e:
+        except (InvalidInputFileError, InvalidModelError, InvalidTimeTitleFileError, InvalidDeviceError, ValueError) as e:
             logger.error(f"\n❌ {e}\n")
             sys.exit(1)
         
