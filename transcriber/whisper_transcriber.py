@@ -77,7 +77,7 @@ class Transcriber():
         logger.info("🎉 - Transcription completed for all files")
 
 def main():
-    parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper models.")
+    parser = argparse.ArgumentParser(description="whisper-transcriber by Danilo Santitto. Transcribe audio files using Whisper models.")
     parser.add_argument("model", help="Choose the model to use for transcription. Available models: ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2'].")
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
