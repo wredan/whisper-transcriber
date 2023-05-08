@@ -1,12 +1,15 @@
 import datetime
 
+class InvalidLineFormatError(Exception):
+    pass
+
 class TimeTitleList:
-    def __init__(self, time, title) -> None:
+    def __init__(self, time, title):
         self.time = time
         self.title = title
 
 class TitleSplitManager:
-    def __init__(self) -> None:
+    def __init__(self):
         pass
 
     def get_title_time_list_from_file(self, filename: str):
@@ -20,8 +23,9 @@ class TitleSplitManager:
         return delta.total_seconds()
 
     def _parse_line(self, line):
-        time_str, _ = line.strip().split(' - ', 1)
-        time_seconds = self._time_str_to_seconds(time_str)
-        return TimeTitleList(time_seconds, line)
-
-
+        if ' - ' in line and ':' in line:
+            time_str, title = line.split(' - ', 1)
+            time_seconds = self._time_str_to_seconds(time_str)
+            return TimeTitleList(time_seconds, title)
+        else:
+            raise InvalidLineFormatError(f"Invalid line format '00:00:00 - Title' for line: {line}")
