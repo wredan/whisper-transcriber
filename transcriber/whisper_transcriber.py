@@ -86,7 +86,7 @@ def main():
     parser.add_argument("model", help="Choose the model to use for transcription. Available models: ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2'].")
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
-    parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used for break transcription into timeblocks. Use .txt file with format: line HH:MM:SS - Title for each column.", default=None)
+    parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used to break transcription into time blocks. Use '.txt' file with format: line HH:MM:SS - Title for each column.", default=None)
     parser.add_argument('-d', "--device", metavar='device', default="cuda" if torch.cuda.is_available() else "cpu", help="Device to use for PyTorch inference: cuda, mps, cpu")
     args = parser.parse_args()
     
