@@ -11,7 +11,7 @@ class TitleSplitManager:
 
     def get_title_time_list_from_file(self, filename: str):
         with open(filename, 'r', encoding="utf-8") as file:
-            title_time_list = [self._parse_line(line.strip()) for line in file]
+            title_time_list = [self._parse_line(line.strip()) for line in file if line.strip()]
         return title_time_list
 
     def _time_str_to_seconds(self, time_str):
