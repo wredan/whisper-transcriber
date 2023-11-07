@@ -19,7 +19,7 @@ class InvalidDeviceError(Exception):
 
 class Validator:
     def __init__(self) -> None:
-        self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2']
+        self.available_models = ['tiny', 'tiny.en', 'base', 'base.en', 'small', 'small.en', 'medium', 'medium.en', 'large', 'large-v1', 'large-v2', 'large-v3']
         self.available_device = ['cuda', 'mps', 'cpu']
 
     def validate(self, input_files, model_name, timetitle_files, output_format, device, output_formatter):
