@@ -37,11 +37,12 @@ class Transcriber():
             logger.error(f"\n❌ - {e}\n")
             sys.exit(1)
 
-    def _transcribe(self, input_file, timetitle_list):
+    def _transcribe(self, input_file, timetitle_list, language=None):
         logger.info(f"🗣️  -> 📝 - Transcribing {input_file} with {self.model_name} model...")
 
         try:
-            result = self.model.transcribe(input_file, verbose=False)
+            decode_options = {"language": (language or None)}
+            result = self.model.transcribe(input_file, verbose=False, **decode_options)
         except Exception as e:
             logger.error(f"\n❌ - Error during transcription: {e}\n")
             sys.exit(1)
@@ -52,7 +53,7 @@ class Transcriber():
         self._save_transcription_to_txt(result, input_file, timetitle_list)
         logger.info(f"✅ - Transcription completed for {input_file} with {self.model_name} model\n")
 
-    def transcribe_files(self, input_files, timelist_files, device):
+    def transcribe_files(self, input_files, timelist_files, device, language=None):
         self._validate(input_files, timelist_files, device)
  
         try:
@@ -61,7 +62,7 @@ class Transcriber():
             for index, input_file in enumerate(input_files):
                 timelist_file = timelist_files[index] if timelist_files and index < len(timelist_files) else None
                 timetitle_list = TitleSplitManager().get_title_time_list_from_file(timelist_file) if timelist_file else None
-                self._transcribe(input_file, timetitle_list)
+                self._transcribe(input_file, timetitle_list, language)
         except (Exception, InvalidLineFormatError) as e:
             logger.error(f"\n❌ - {e}\n")
             sys.exit(1)
@@ -87,11 +88,12 @@ def main():
     parser.add_argument("input_file", nargs='+', help="List of input audio files to process.")
     parser.add_argument('-f', '--output-format', metavar='output_format', help="Output file format. Available format: 'timestamp', 'plain'. Default is both.", default=None)
     parser.add_argument('-t', '--timelist-files', nargs='+', metavar='timelist_files', help="Time list files name. Used to break transcription into time blocks. Use '.txt' file with format: line HH:MM:SS - Title for each column.", default=None)
+    parser.add_argument('-l', '--language', metavar='language', help="Language code for transcription. Use ISO 639-1 codes (e.g., 'en' for English, 'it' for Italian).", default=None)
     parser.add_argument('-d', "--device", metavar='device', default="cuda" if torch.cuda.is_available() else "cpu", help="Device to use for PyTorch inference: cuda, mps, cpu")
     args = parser.parse_args()
     
     transcriber = Transcriber(args.model, args.output_format)
-    transcriber.transcribe_files(args.input_file, args.timelist_files, args.device)
+    transcriber.transcribe_files(args.input_file, args.timelist_files, args.device, args.language)
 
 if __name__ == "__main__":
     main()
